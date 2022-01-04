@@ -1,12 +1,28 @@
 import "reflect-metadata";
 import express from "express";
+import { createConnection, Connection } from "typeorm";
 
-const app = express();
+const main = async () => {
+  const app = express();
 
-app.get("/", (_, res) => {
-  res.send("INDEX");
-});
+  try {
+    const connection: Connection = await createConnection();
 
-app.listen(3000, () => {
-  console.log("Server listening on port 3000");
-});
+    if (connection.isConnected) {
+      console.log("DB Connection successful.");
+    }
+  } catch (err) {
+    console.log("DB Connection error: ", err);
+  }
+
+  app.get("/", (_, res) => {
+    res.send("INDEX");
+  });
+
+  const port = process.env.PORT;
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port} `);
+  });
+};
+
+main();
