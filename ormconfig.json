@@ -5,6 +5,7 @@
   "username": "postgres",
   "password": "postgres",
   "database": "notesc",
+  "logging": "true",
   "migrationsRun": "true",
   "entities": ["dist/entities/*.js"],
   "migrations": ["dist/migrations/*.js"]
