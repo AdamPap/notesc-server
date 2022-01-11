@@ -37,9 +37,7 @@ const main = async () => {
     try {
       const cards = await Card.find();
 
-      console.log(cards);
-
-      res.json(cards);
+      res.status(200).json(cards);
     } catch (err) {
       console.error(err);
     }
@@ -50,12 +48,24 @@ const main = async () => {
 
     const { title, content } = req.body;
 
-    const card = await Card.create({ title, content });
+    const card = Card.create({ title, content });
     await card.save();
 
     console.log(card);
 
     res.status(201).json(card);
+  });
+
+  app.get("/cards/:cardId", async (req, res) => {
+    const cardId = parseInt(req.params.cardId);
+
+    const card = await Card.findOne(cardId);
+
+    if (!card) {
+      throw new Error("Card not found.");
+    }
+
+    res.status(200).send(card);
   });
 
   app.put("/cards/:cardId", async (req, res) => {
