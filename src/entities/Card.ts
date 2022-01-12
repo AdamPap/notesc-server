@@ -5,7 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BaseEntity,
+  ManyToOne,
+  PrimaryColumn,
 } from "typeorm";
+import { List } from "./List";
 
 @Entity()
 export class Card extends BaseEntity {
@@ -17,6 +20,14 @@ export class Card extends BaseEntity {
 
   @Column()
   content: string;
+
+  @PrimaryColumn()
+  listId!: number;
+
+  @ManyToOne(() => List, (list) => list.cards, {
+    onDelete: "CASCADE",
+  })
+  list!: List;
 
   @CreateDateColumn({
     type: "timestamp",
