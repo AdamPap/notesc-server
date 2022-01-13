@@ -1,9 +1,12 @@
 import "reflect-metadata";
 import "dotenv-safe/config";
-import express from "express";
+import express, { Request } from "express";
+import path from "path";
 import { createConnection, Connection } from "typeorm";
 import { Card } from "./entities/Card";
-import path from "path";
+import { Board } from "./entities/Board";
+import { List } from "./entities/List";
+import * as cards from "./controllers/card";
 
 const main = async () => {
   const app = express();
@@ -16,7 +19,7 @@ const main = async () => {
       url: process.env.DATABASE_URL,
       logging: true,
       migrationsRun: true,
-      entities: [Card],
+      entities: [Card, List, Board],
       migrations: [path.join(__dirname, "./migrations/*")],
     });
 
@@ -29,23 +32,9 @@ const main = async () => {
     console.error("DB Connection error: ", err);
   }
 
-  app.get("/", (_, res) => {
-    res.send("INDEX");
-  });
-
-  app.get("/cards", async (_, res) => {
-    try {
-      const cards = await Card.find();
-
-      res.status(200).json(cards);
-    } catch (err) {
-      console.error(err);
-    }
-  });
+  app.get("/cards", cards.index);
 
   app.post("/cards", async (req, res) => {
-    console.log(req.body);
-
     const { title, content } = req.body;
 
     const card = Card.create({ title, content });
@@ -107,6 +96,43 @@ const main = async () => {
     await Card.delete({ id: cardId });
 
     res.json({ deleted: true });
+  });
+
+  app.post("/boards", async (req, res) => {
+    const { title, content } = req.body;
+
+    const board = Board.create({ title, content });
+    await board.save();
+
+    res.status(201).json(board);
+  });
+
+  app.get("/boards", async (_, res) => {
+    const boards = await Board.find();
+
+    res.json(boards);
+  });
+
+  app.post("/lists", async (req: Request<{}, {}, List>, res) => {
+    const { title, content, boardId } = req.body;
+
+    const board = await Board.findOne({ id: boardId });
+
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
+    const list = List.create({ title, content, boardId });
+    list.board = board;
+    await list.save();
+
+    res.status(201).json(list);
+  });
+
+  app.get("/lists", async (_, res) => {
+    const lists = await List.find({ relations: ["board"] });
+
+    res.json(lists);
   });
 
   const port = process.env.PORT;
