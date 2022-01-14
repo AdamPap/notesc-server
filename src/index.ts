@@ -6,9 +6,9 @@ import { createConnection, Connection } from "typeorm";
 import { Card } from "./entities/Card";
 import { Board } from "./entities/Board";
 import { List } from "./entities/List";
-import * as cards from "./controllers/card";
-import * as boards from "./controllers/board";
-import * as lists from "./controllers/list";
+import cardsRoutes from "./routes/cards";
+import boardsRoutes from "./routes/boards";
+import listRoutes from "./routes/lists";
 
 const main = async () => {
   const app = express();
@@ -27,30 +27,14 @@ const main = async () => {
 
     if (connection.isConnected) {
       console.log("DB Connection successful.");
-      // connection.runMigrations();
-      // console.log("DB Migrated successfully.");
     }
   } catch (err) {
     console.error("DB Connection error: ", err);
   }
 
-  app.get("/cards", cards.index);
-
-  app.post("/cards", cards.createCard);
-
-  app.get("/cards/:cardId", cards.showCard);
-
-  app.put("/cards/:cardId", cards.updateCard);
-
-  app.delete("/cards/:cardId", cards.deleteCard);
-
-  app.get("/boards", boards.index);
-
-  app.post("/boards", boards.createBoard);
-
-  app.get("/lists", lists.index);
-
-  app.post("/lists", lists.createList);
+  app.use(cardsRoutes);
+  app.use(boardsRoutes);
+  app.use(listRoutes);
 
   const port = process.env.PORT;
   app.listen(port, () => {
