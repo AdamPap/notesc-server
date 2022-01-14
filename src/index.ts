@@ -1,12 +1,14 @@
 import "reflect-metadata";
 import "dotenv-safe/config";
-import express, { Request } from "express";
+import express from "express";
 import path from "path";
 import { createConnection, Connection } from "typeorm";
 import { Card } from "./entities/Card";
 import { Board } from "./entities/Board";
 import { List } from "./entities/List";
 import * as cards from "./controllers/card";
+import * as boards from "./controllers/board";
+import * as lists from "./controllers/list";
 
 const main = async () => {
   const app = express();
@@ -34,106 +36,21 @@ const main = async () => {
 
   app.get("/cards", cards.index);
 
-  app.post("/cards", async (req, res) => {
-    const { title, content } = req.body;
+  app.post("/cards", cards.createCard);
 
-    const card = Card.create({ title, content });
-    await card.save();
+  app.get("/cards/:cardId", cards.showCard);
 
-    console.log(card);
+  app.put("/cards/:cardId", cards.updateCard);
 
-    res.status(201).json(card);
-  });
+  app.delete("/cards/:cardId", cards.deleteCard);
 
-  app.get("/cards/:cardId", async (req, res) => {
-    const cardId = parseInt(req.params.cardId);
+  app.get("/boards", boards.index);
 
-    const card = await Card.findOne(cardId);
+  app.post("/boards", boards.createBoard);
 
-    if (!card) {
-      throw new Error("Card not found.");
-    }
+  app.get("/lists", lists.index);
 
-    res.status(200).send(card);
-  });
-
-  app.put("/cards/:cardId", async (req, res) => {
-    const cardId = parseInt(req.params.cardId);
-
-    const card = await Card.findOne({ id: cardId });
-
-    if (!card) {
-      throw new Error("Card not found");
-    }
-
-    const { title, content } = req.body;
-
-    Card.update(
-      { id: cardId },
-      {
-        title,
-        content,
-      }
-    );
-
-    // card.title = title;
-    // card.content = content;
-
-    // card.save();
-
-    res.json(card);
-  });
-
-  app.delete("/cards/:cardId", async (req, res) => {
-    const cardId = parseInt(req.params.cardId);
-
-    const card = Card.findOne({ id: cardId });
-
-    if (!card) {
-      throw new Error("Card not found");
-    }
-
-    await Card.delete({ id: cardId });
-
-    res.json({ deleted: true });
-  });
-
-  app.post("/boards", async (req, res) => {
-    const { title, content } = req.body;
-
-    const board = Board.create({ title, content });
-    await board.save();
-
-    res.status(201).json(board);
-  });
-
-  app.get("/boards", async (_, res) => {
-    const boards = await Board.find();
-
-    res.json(boards);
-  });
-
-  app.post("/lists", async (req: Request<{}, {}, List>, res) => {
-    const { title, content, boardId } = req.body;
-
-    const board = await Board.findOne({ id: boardId });
-
-    if (!board) {
-      throw new Error("Board not found");
-    }
-
-    const list = List.create({ title, content, boardId });
-    list.board = board;
-    await list.save();
-
-    res.status(201).json(list);
-  });
-
-  app.get("/lists", async (_, res) => {
-    const lists = await List.find({ relations: ["board"] });
-
-    res.json(lists);
-  });
+  app.post("/lists", lists.createList);
 
   const port = process.env.PORT;
   app.listen(port, () => {
