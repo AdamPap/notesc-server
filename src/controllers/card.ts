@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { List } from "../entities/List";
 import { Card } from "../entities/Card";
 
 export const index = async (_: Request, res: Response) => {
   try {
-    const cards = await Card.find();
+    const cards = await Card.find({ relations: ["list"] });
 
     if (cards.length < 1) {
       throw new Error("Not cards found.");
@@ -15,13 +16,18 @@ export const index = async (_: Request, res: Response) => {
   }
 };
 
-export const createCard = async (req: Request, res: Response) => {
-  const { title, content } = req.body;
+export const createCard = async (req: Request<{}, {}, Card>, res: Response) => {
+  const { title, content, listId } = req.body;
 
-  const card = Card.create({ title, content });
+  const list = await List.findOne({ id: listId });
+
+  if (!list) {
+    throw new Error("List not found");
+  }
+
+  const card = Card.create({ title, content, listId });
+  card.list = list;
   await card.save();
-
-  console.log(card);
 
   res.status(201).json(card);
 };
