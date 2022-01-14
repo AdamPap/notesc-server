@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Board } from "../entities/Board";
 
 export const index = async (_: Request, res: Response) => {
-  const boards = await Board.find();
+  const boards = await Board.find({ relations: ["lists"] });
 
   res.json(boards);
 };
