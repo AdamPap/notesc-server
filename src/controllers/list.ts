@@ -3,7 +3,7 @@ import { Board } from "../entities/Board";
 import { List } from "../entities/List";
 
 export const index = async (_: Request, res: Response) => {
-  const lists = await List.find({ relations: ["board"] });
+  const lists = await List.find({ relations: ["board", "cards"] });
 
   res.json(lists);
 };
