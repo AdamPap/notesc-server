@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as cards from "../controllers/card";
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get("/cards", cards.index);
 
