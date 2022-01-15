@@ -16,10 +16,17 @@ export const index = async (_: Request, res: Response) => {
   }
 };
 
-export const createCard = async (req: Request<{}, {}, Card>, res: Response) => {
-  const { title, content, listId } = req.body;
+export const createCard = async (
+  req: Request<{ boardId: string; listId: string }, {}, Card>,
+  res: Response
+) => {
+  const listId = parseInt(req.params.listId);
+  const boardId = parseInt(req.params.boardId);
+  const { title, content } = req.body;
 
-  const list = await List.findOne({ id: listId });
+  const list = await List.findOne({
+    where: [{ id: listId }, { boardId: boardId }],
+  });
 
   if (!list) {
     throw new Error("List not found");

@@ -8,8 +8,12 @@ export const index = async (_: Request, res: Response) => {
   res.json(lists);
 };
 
-export const createList = async (req: Request<{}, {}, List>, res: Response) => {
-  const { title, content, boardId } = req.body;
+export const createList = async (
+  req: Request<{ boardId: string }, {}, List>,
+  res: Response
+) => {
+  const boardId = parseInt(req.params.boardId);
+  const { title, content } = req.body;
 
   const board = await Board.findOne({ id: boardId });
 
