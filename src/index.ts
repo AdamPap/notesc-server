@@ -32,9 +32,9 @@ const main = async () => {
     console.error("DB Connection error: ", err);
   }
 
-  app.use(cardsRoutes);
   app.use(boardsRoutes);
-  app.use(listRoutes);
+  app.use("/boards/:boardId", listRoutes);
+  app.use("/boards/:boardId/lists/:listId", cardsRoutes);
 
   const port = process.env.PORT;
   app.listen(port, () => {
