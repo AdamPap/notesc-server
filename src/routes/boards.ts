@@ -7,4 +7,6 @@ router.get("/boards", boards.index);
 
 router.post("/boards", boards.createBoard);
 
+router.get("/boards/:boardId", boards.showBoard);
+
 export default router;

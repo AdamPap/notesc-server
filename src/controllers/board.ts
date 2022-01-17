@@ -15,3 +15,18 @@ export const createBoard = async (req: Request, res: Response) => {
 
   res.status(201).json(board);
 };
+
+export const showBoard = async (
+  req: Request<{ boardId: string }, {}, {}>,
+  res: Response
+) => {
+  const boardId = parseInt(req.params.boardId);
+
+  const board = await Board.findOne({ id: boardId }, { relations: ["lists"] });
+
+  if (!board) {
+    throw new Error("Board not found");
+  }
+
+  res.json(board);
+};
