@@ -22,7 +22,10 @@ export const showBoard = async (
 ) => {
   const boardId = parseInt(req.params.boardId);
 
-  const board = await Board.findOne({ id: boardId }, { relations: ["lists"] });
+  const board = await Board.findOne(
+    { id: boardId },
+    { relations: ["lists", "lists.cards"] }
+  );
 
   if (!board) {
     throw new Error("Board not found");
